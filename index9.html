@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de construcción</title>
+
+  <style>
+    :root{
+      --bg1:#070a12;
+      --bg2:#0b1220;
+      --card:rgba(255,255,255,.06);
+      --border:rgba(255,255,255,.12);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.60);
+      --shadow:0 18px 55px rgba(0,0,0,.55);
+      --radius:22px;
+
+      --btn:rgba(255,255,255,.07);
+      --btnBorder:rgba(255,255,255,.14);
+      --btnHover:rgba(255,255,255,.10);
+
+      --infoBg:rgba(96,165,250,.12);
+      --infoBorder:rgba(96,165,250,.26);
+
+      --gradBtn1:rgba(96,165,250,.95);
+      --gradBtn2:rgba(167,139,250,.85);
+
+      --dangerBg:rgba(239,68,68,.20);
+      --dangerBorder:rgba(239,68,68,.35);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 520px at 15% 15%, rgba(96,165,250,.18), transparent 60%),
+        radial-gradient(900px 520px at 90% 20%, rgba(167,139,250,.12), transparent 55%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+    }
+
+    .shell{
+      width:min(1100px,100%);
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    @media (max-width: 950px){
+      .shell{ grid-template-columns:1fr; }
+    }
+
+    .box{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .box::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:linear-gradient(135deg, rgba(96,165,250,.18), rgba(167,139,250,.10), transparent 65%);
+      filter:blur(22px);
+      opacity:.85;
+      pointer-events:none;
+    }
+    .inner{
+      position:relative;
+      padding:20px;
+    }
+
+    .top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .brand{ display:grid; gap:6px; }
+
+    .title{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.3px;
+    }
+    .subtitle{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.4;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .kbd{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+      font-size:12px;
+      padding:3px 8px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:rgba(255,255,255,.85);
+    }
+
+    .miniBtn{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:rgba(255,255,255,.88);
+      padding:8px 10px;
+      border-radius:12px;
+      font-size:12.5px;
+      font-weight:760;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .miniBtn:hover{ background:rgba(255,255,255,.10); }
+
+    .screen{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      border-radius:18px;
+      padding:14px 14px 12px;
+      display:grid;
+      gap:8px;
+      margin-bottom:14px;
+    }
+    .expr{
+      min-height:18px;
+      color:rgba(255,255,255,.65);
+      font-size:13px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .value{
+      min-height:42px;
+      display:flex;
+      justify-content:flex-end;
+      align-items:flex-end;
+      font-size:34px;
+      font-weight:800;
+      letter-spacing:.6px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .field{
+      display:grid;
+      gap:6px;
+      margin-top:10px;
+    }
+    .label{
+      font-size:12.5px;
+      color:rgba(255,255,255,.70);
+      font-weight:740;
+    }
+
+    input, .select{
+      width:100%;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:rgba(255,255,255,.92);
+      padding:12px 12px;
+      border-radius:14px;
+      font-size:14px;
+      outline:none;
+    }
+    input:focus, .select:focus{
+      border-color:rgba(96,165,250,.40);
+      box-shadow:0 0 0 3px rgba(96,165,250,.12);
+    }
+
+    .btnPrimary{
+      border:none;
+      background:linear-gradient(135deg, var(--gradBtn1), var(--gradBtn2));
+      color:#071018;
+      font-weight:900;
+      padding:14px 12px;
+      border-radius:16px;
+      cursor:pointer;
+      width:100%;
+      margin-top:12px;
+    }
+    .btnPrimary:hover{ filter:brightness(1.04); }
+
+    .btnGhost{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      font-weight:780;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      text-align:center;
+      cursor:pointer;
+      margin-top:10px;
+      color:rgba(255,255,255,.92);
+    }
+    .btnGhost:hover{ background:rgba(255,255,255,.10); }
+
+    .status{
+      border:1px solid var(--infoBorder);
+      background:var(--infoBg);
+      border-radius:14px;
+      padding:10px 12px;
+      font-size:12.5px;
+      color:rgba(255,255,255,.80);
+      line-height:1.4;
+      margin-top:12px;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      font-size:13px;
+      color:rgba(255,255,255,.78);
+    }
+    .h2{
+      margin:0;
+      font-size:14px;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.78);
+    }
+
+    .panel{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      border-radius:16px;
+      padding:14px;
+      display:grid;
+      gap:10px;
+    }
+
+    .resultBox{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      border-radius:16px;
+      padding:12px;
+      display:grid;
+      gap:8px;
+      font-size:13px;
+      color:rgba(255,255,255,.82);
+      line-height:1.5;
+    }
+
+    .historyBox{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      border-radius:16px;
+      padding:12px;
+      max-height:260px;
+      overflow:auto;
+    }
+    .historyItem{
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+      font-size:12.5px;
+      color:rgba(255,255,255,.78);
+    }
+    .historyItem:last-child{ margin-bottom:0; }
+    .tag{
+      color:rgba(255,255,255,.70);
+      font-weight:800;
+      white-space:nowrap;
+      min-width:140px;
+    }
+    .exprSmall{
+      color:rgba(255,255,255,.70);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      flex:1;
+    }
+
+    .mutedSmall{
+      color:rgba(255,255,255,.58);
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    /* MODAL NOMBRE */
+    .modalOverlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      display:grid;
+      place-items:center;
+      padding:18px;
+      z-index:50;
+    }
+    .modal{
+      width:min(520px, 100%);
+      background:rgba(15,20,35,.92);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:20px;
+      box-shadow:0 18px 55px rgba(0,0,0,.55);
+      padding:18px;
+      position:relative;
+    }
+    .modal h3{
+      margin:0 0 8px 0;
+      font-size:16px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .modal p{
+      margin:0 0 12px 0;
+      color:rgba(255,255,255,.70);
+      font-size:13px;
+      line-height:1.4;
+    }
+    .modalActions{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top:12px;
+    }
+    .btnCancel{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:rgba(255,255,255,.90);
+      font-weight:820;
+      border-radius:14px;
+      padding:10px 12px;
+      cursor:pointer;
+    }
+    .btnCancel:hover{ background:rgba(255,255,255,.10); }
+    .btnOk{
+      border:none;
+      background:linear-gradient(135deg, var(--gradBtn1), var(--gradBtn2));
+      color:#071018;
+      font-weight:920;
+      border-radius:14px;
+      padding:10px 12px;
+      cursor:pointer;
+    }
+
+    .dangerMini{
+      border:1px solid var(--dangerBorder);
+      background:var(--dangerBg);
+      color:rgba(255,255,255,.92);
+    }
+
+    /* ====== RECUADRO GRANDE: MODO CONSOLA (SIN TEXTO TÉCNICO) ====== */
+    .consoleCard{
+      border:2px dashed rgba(96,165,250,.60);
+      background:rgba(96,165,250,.12);
+    }
+    .consoleTitle{
+      font-weight:950;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+    .consoleHint{
+      color:rgba(255,255,255,.80);
+      font-size:12.5px;
+      line-height:1.45;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="modalOverlay" id="nameOverlay" aria-hidden="false">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
+      <h3 id="nameTitle">Hola, bienvenido a la calculadora</h3>
+      <p>¿Cómo te llamas?</p>
+      <input id="nameInput" type="text" placeholder="Escriba su nombre" autocomplete="name" />
+      <div class="modalActions">
+        <button class="btnCancel" id="nameSkip" type="button">Omitir</button>
+        <button class="btnOk" id="nameOk" type="button">Continuar</button>
+      </div>
+      <p class="mutedSmall" style="margin-top:10px;">
+        Nota: El historial también se imprime en la consola del navegador.
+      </p>
+    </div>
+  </div>
+
+  <div class="shell" aria-hidden="true" id="appRoot">
+    <div class="box">
+      <div class="inner">
+        <div class="top">
+          <div class="brand">
+            <h1 class="title">Calculadora de construcción</h1>
+            <p class="subtitle">
+              Consola (macOS):
+              <span class="kbd">Option</span> +
+              <span class="kbd">Command</span> +
+              <span class="kbd">I</span>
+              <button class="miniBtn" id="btnConsoleMode" type="button">🖥️ Activar consola</button>
+            </p>
+          </div>
+          <div class="mutedSmall" id="helloLabel" style="text-align:right; margin-top:2px;"></div>
+        </div>
+
+        <div class="screen">
+          <div class="expr" id="expr">Seleccione una figura e ingrese medidas.</div>
+          <div class="value" id="value">0 m²</div>
+        </div>
+
+        <div class="field">
+          <div class="label">Figura</div>
+          <select class="select" id="shape">
+            <option value="">Seleccione una figura...</option>
+            <option value="rect">Rectángulo</option>
+            <option value="square">Cuadrado</option>
+            <option value="circle">Círculo</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <div class="label" id="labelA">Medida A (m)</div>
+          <input id="inA" inputmode="decimal" placeholder="Ej: 10" />
+        </div>
+
+        <div class="field">
+          <div class="label" id="labelB">Medida B (m)</div>
+          <input id="inB" inputmode="decimal" placeholder="Ej: 5" />
+        </div>
+
+        <div class="field">
+          <div class="label">Altura (m) para volumen (opcional)</div>
+          <input id="inH" inputmode="decimal" placeholder="Ej: 3 (opcional)" />
+        </div>
+
+        <button class="btnPrimary" id="btnCalc" type="button">Calcular</button>
+        <button class="btnGhost dangerMini" id="btnClear" type="button">Limpiar</button>
+
+        <div class="mutedSmall" style="margin-top:10px;">
+          Atajos: Enter en A pasa a B. Enter en B pasa a Altura. Enter en Altura calcula.
+        </div>
+
+        <div class="status" id="status">Seleccione una figura y complete las medidas.</div>
+      </div>
+    </div>
+
+    <aside class="box">
+      <div class="inner">
+
+        <!-- ====== RECUADRO GRANDE: MODO CONSOLA ====== -->
+        <div class="panel consoleCard">
+          <div class="row">
+            <div class="consoleTitle">🖥️ Modo consola</div>
+            <span></span>
+          </div>
+
+          <div class="consoleHint">
+            Accede a una versión alternativa de la calculadora mediante interacción
+            directa, ideal para uso avanzado o demostraciones técnicas.
+          </div>
+
+          <button class="btnGhost" id="btnConsoleModeRight" type="button">
+            Activar consola
+          </button>
+
+          <div class="mutedSmall">
+            Tip: Si estás en Mac, abre consola con <span class="kbd">Option</span> + <span class="kbd">Command</span> + <span class="kbd">I</span>.
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="row">
+            <span class="h2" style="text-transform:none; letter-spacing:.2px;">ÁREA PARA CONSTRUCCIÓN</span>
+            <span></span>
+          </div>
+
+          <div class="row">
+            <span>Operaciones registradas</span>
+            <strong id="count">0</strong>
+          </div>
+
+          <div class="row">
+            <span>Último modo</span>
+            <strong id="modeLabel">Interfaz</strong>
+          </div>
+
+          <div class="resultBox" id="resultBox">
+            <div><strong>Área:</strong> —</div>
+            <div><strong>Perímetro:</strong> —</div>
+            <div><strong>Volumen:</strong> —</div>
+          </div>
+
+          <div class="mutedSmall">
+            El volumen se calcula solo si ingresa la altura.
+          </div>
+        </div>
+
+        <div class="h2" style="margin-top:14px;">HISTORIAL</div>
+
+        <div class="panel">
+          <select class="select" id="filterSelect">
+            <option value="">Filtrar por figura (seleccione)</option>
+            <option value="Rectángulo">Rectángulo</option>
+            <option value="Cuadrado">Cuadrado</option>
+            <option value="Círculo">Círculo</option>
+          </select>
+
+          <button class="btnGhost" id="btnFilter" type="button">Aplicar filtro</button>
+          <button class="btnGhost" id="btnSummary" type="button">Ver resumen</button>
+          <button class="btnGhost" id="btnShowHistory" type="button">Ver historial</button>
+
+          <div class="historyBox" id="historyBox">
+            <div class="mutedSmall">Aún no hay registros.</div>
+          </div>
+
+          <div class="mutedSmall">
+            El historial también queda disponible en la consola del navegador.
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const historial = [];
+    const usuario = {
+      nombre: "",
+      operacionesRealizadas: 0,
+      registrarOperacion() { this.operacionesRealizadas++; }
+    };
+
+    const VALORES_PREDEFINIDOS = {
+      rect:   { a: 10, b: 5,  h: 3 },
+      square: { a: 8,  b: null, h: 2 },
+      circle: { a: 4,  b: null, h: 2 }
+    };
+
+    const PI = Math.PI;
+
+    const exprEl = document.getElementById("expr");
+    const valueEl = document.getElementById("value");
+    const modeLabel = document.getElementById("modeLabel");
+    const countEl = document.getElementById("count");
+    const historyBox = document.getElementById("historyBox");
+    const statusEl = document.getElementById("status");
+    const helloLabel = document.getElementById("helloLabel");
+    const resultBox = document.getElementById("resultBox");
+
+    const shapeEl = document.getElementById("shape");
+    const inA = document.getElementById("inA");
+    const inB = document.getElementById("inB");
+    const inH = document.getElementById("inH");
+
+    const labelA = document.getElementById("labelA");
+    const labelB = document.getElementById("labelB");
+
+    function setStatus(t){ statusEl.textContent = t; }
+    function setExpr(t){ exprEl.textContent = t || " "; }
+    function setMainValue(text){ valueEl.textContent = text; }
+    function setResultBox(areaStr, perStr, volStr){
+      resultBox.innerHTML =
+        '<div><strong>Área:</strong> ' + areaStr + '</div>' +
+        '<div><strong>Perímetro:</strong> ' + perStr + '</div>' +
+        '<div><strong>Volumen:</strong> ' + volStr + '</div>';
+    }
+
+    function parseNumber(str){
+      const normalized = String(str ?? "").trim().replace(",", ".");
+      if (normalized === "") return { ok:false, value:null };
+      const n = Number(normalized);
+      if (!Number.isFinite(n)) return { ok:false, value:null };
+      return { ok:true, value:n };
+    }
+
+    function requirePositiveFromInput(inputEl, label){
+      const r = parseNumber(inputEl.value);
+      if (!r.ok || r.value <= 0){
+        setStatus("Entrada inválida. Revise " + label + " (debe ser mayor a 0).");
+        inputEl.focus();
+        return null;
+      }
+      return r.value;
+    }
+
+    function optionalPositiveFromInput(inputEl){
+      const raw = String(inputEl.value ?? "").trim();
+      if (raw === "") return null;
+      const r = parseNumber(raw);
+      if (!r.ok || r.value <= 0) return "INVALID";
+      return r.value;
+    }
+
+    function round2(n){ return Math.round(n * 100) / 100; }
+
+    function areaRectangulo(a, b){ return a * b; }
+    function perimetroRectangulo(a, b){ return 2 * (a + b); }
+
+    function areaCuadrado(a){ return a * a; }
+    function perimetroCuadrado(a){ return 4 * a; }
+
+    function areaCirculo(r){ return PI * r * r; }
+    function perimetroCirculo(r){ return 2 * PI * r; }
+
+    function volumen(areaBase, h){ return areaBase * h; }
+
+    function calcularFigura(figura, a, b, h){
+      switch(figura){
+        case "rect": {
+          const area = areaRectangulo(a, b);
+          const per  = perimetroRectangulo(a, b);
+          const vol  = (h === null) ? null : volumen(area, h);
+          return { figuraNombre:"Rectángulo", area, per, vol };
+        }
+        case "square": {
+          const area = areaCuadrado(a);
+          const per  = perimetroCuadrado(a);
+          const vol  = (h === null) ? null : volumen(area, h);
+          return { figuraNombre:"Cuadrado", area, per, vol };
+        }
+        case "circle": {
+          const area = areaCirculo(a);
+          const per  = perimetroCirculo(a);
+          const vol  = (h === null) ? null : volumen(area, h);
+          return { figuraNombre:"Círculo", area, per, vol };
+        }
+        default:
+          return null;
+      }
+    }
+
+    function guardarEnHistorial(origen, figuraNombre, a, b, h, area, per, vol){
+      const item = {
+        origen,
+        figura: figuraNombre,
+        a,
+        b: (b === null ? "-" : b),
+        h: (h === null ? "-" : h),
+        area: round2(area),
+        per: round2(per),
+        vol: (vol === null) ? "—" : (round2(vol) + " m³"),
+        ts: new Date().toISOString()
+      };
+      historial.push(item);
+      usuario.registrarOperacion();
+      countEl.textContent = String(usuario.operacionesRealizadas);
+    }
+
+    function renderHistorial(lista){
+      const data = lista ?? historial;
+
+      if (data.length === 0){
+        historyBox.innerHTML = '<div class="mutedSmall">Aún no hay registros.</div>';
+        return;
+      }
+
+      historyBox.innerHTML = "";
+      for (let i = data.length - 1; i >= 0; i--){
+        const op = data[i];
+        const div = document.createElement("div");
+        div.className = "historyItem";
+
+        const left = document.createElement("div");
+        left.className = "tag";
+        left.textContent = op.figura;
+
+        const mid = document.createElement("div");
+        mid.className = "exprSmall";
+        mid.textContent = "A=" + op.a + " B=" + op.b + " H=" + op.h + " | " + op.origen;
+
+        const right = document.createElement("div");
+        right.style.whiteSpace = "nowrap";
+        right.style.fontWeight = "900";
+        right.textContent = op.area + " m²";
+
+        div.appendChild(left);
+        div.appendChild(mid);
+        div.appendChild(right);
+
+        historyBox.appendChild(div);
+      }
+    }
+
+    function imprimirHistorialConForEach(){
+      if (historial.length === 0){
+        console.log("Historial vacío.");
+        return;
+      }
+      console.log("Historial (forEach):");
+      historial.forEach((op, i) => {
+        console.log(
+          (i+1) + ")",
+          op.figura,
+          "| A=" + op.a,
+          "B=" + op.b,
+          "H=" + op.h,
+          "| Área=" + op.area + "m²",
+          "| Perímetro=" + op.per + "m",
+          "| Volumen=" + op.vol,
+          "| Origen=" + op.origen
+        );
+      });
+    }
+
+    function generarResumenConMap(){
+      const lineas = historial.map((op, i) => {
+        return (i+1) + ") " + op.figura +
+          " | Área=" + op.area + "m²" +
+          " | Perímetro=" + op.per + "m" +
+          " | Volumen=" + op.vol +
+          " | Origen=" + op.origen;
+      });
+      const resumen = lineas.join("\n");
+      console.log("Resumen (map):\n" + resumen);
+      return resumen;
+    }
+
+    function actualizarUIFigura(){
+      const f = shapeEl.value;
+      inA.value = "";
+      inB.value = "";
+      inH.value = "";
+
+      if (f === "rect"){
+        labelA.textContent = "Largo (m)";
+        labelB.textContent = "Ancho (m)";
+        inB.disabled = false;
+        setExpr("Rectángulo: largo × ancho");
+        setStatus("Ingrese largo, ancho y (opcional) altura para volumen.");
+        setMainValue("0 m²");
+        setResultBox("—", "—", "—");
+        inA.focus();
+      } else if (f === "square"){
+        labelA.textContent = "Lado (m)";
+        labelB.textContent = "Medida B (no aplica)";
+        inB.disabled = true;
+        setExpr("Cuadrado: lado × lado");
+        setStatus("Ingrese lado y (opcional) altura para volumen.");
+        setMainValue("0 m²");
+        setResultBox("—", "—", "—");
+        inA.focus();
+      } else if (f === "circle"){
+        labelA.textContent = "Radio (m)";
+        labelB.textContent = "Medida B (no aplica)";
+        inB.disabled = true;
+        setExpr("Círculo: π × radio²");
+        setStatus("Ingrese radio y (opcional) altura para volumen.");
+        setMainValue("0 m²");
+        setResultBox("—", "—", "—");
+        inA.focus();
+      } else {
+        labelA.textContent = "Medida A (m)";
+        labelB.textContent = "Medida B (m)";
+        inB.disabled = false;
+        setExpr("Seleccione una figura e ingrese medidas.");
+        setStatus("Seleccione una figura y complete las medidas.");
+        setMainValue("0 m²");
+        setResultBox("—", "—", "—");
+      }
+    }
+
+    shapeEl.addEventListener("change", actualizarUIFigura);
+
+    inA.addEventListener("keydown", (e) => {
+      if (e.key === "Enter"){
+        e.preventDefault();
+        if (!inB.disabled) inB.focus();
+        else inH.focus();
+      }
+    });
+    inB.addEventListener("keydown", (e) => {
+      if (e.key === "Enter"){
+        e.preventDefault();
+        inH.focus();
+      }
+    });
+    inH.addEventListener("keydown", (e) => {
+      if (e.key === "Enter"){
+        e.preventDefault();
+        calcularInterfaz();
+      }
+    });
+
+    function calcularInterfaz(){
+      try{
+        modeLabel.textContent = "Interfaz";
+
+        const figura = shapeEl.value;
+        if (!figura){
+          setStatus("Seleccione una figura antes de calcular.");
+          shapeEl.focus();
+          return;
+        }
+
+        const a = requirePositiveFromInput(inA, labelA.textContent);
+        if (a === null) return;
+
+        let b = null;
+        if (figura === "rect"){
+          b = requirePositiveFromInput(inB, labelB.textContent);
+          if (b === null) return;
+        }
+
+        const h = optionalPositiveFromInput(inH);
+        if (h === "INVALID"){
+          setStatus("Altura inválida (debe ser mayor a 0 o dejar vacío).");
+          inH.focus();
+          return;
+        }
+
+        const r = calcularFigura(figura, a, b, h);
+        if (!r){
+          setStatus("Figura inválida.");
+          return;
+        }
+
+        const area2 = round2(r.area);
+        const per2  = round2(r.per);
+        const volStr = (r.vol === null) ? "—" : (round2(r.vol) + " m³");
+
+        setExpr(r.figuraNombre + " (interfaz)");
+        setMainValue(area2 + " m²");
+        setResultBox(area2 + " m²", per2 + " m", volStr);
+
+        guardarEnHistorial("Interfaz", r.figuraNombre, a, b, h, r.area, r.per, r.vol);
+        renderHistorial(historial);
+
+        imprimirHistorialConForEach();
+        generarResumenConMap();
+
+        setStatus("Cálculo realizado y registrado.");
+      } catch (err){
+        console.error(err);
+        setStatus("Error interno: revise la consola.");
+      }
+    }
+
+    document.getElementById("btnCalc").addEventListener("click", calcularInterfaz);
+
+    function limpiar(){
+      modeLabel.textContent = "Interfaz";
+      shapeEl.value = "";
+      inA.value = "";
+      inB.value = "";
+      inH.value = "";
+      inB.disabled = false;
+
+      setExpr("Seleccione una figura e ingrese medidas.");
+      setMainValue("0 m²");
+      setResultBox("—", "—", "—");
+      setStatus("Formulario limpiado.");
+      renderHistorial(historial);
+      shapeEl.focus();
+    }
+
+    document.getElementById("btnClear").addEventListener("click", limpiar);
+
+    document.getElementById("btnShowHistory").addEventListener("click", () => {
+      renderHistorial(historial);
+      setStatus("Historial mostrado.");
+    });
+
+    document.getElementById("btnFilter").addEventListener("click", () => {
+      const f = document.getElementById("filterSelect").value;
+      if (!f){
+        renderHistorial(historial);
+        setStatus("Filtro no seleccionado. Mostrando todo.");
+        return;
+      }
+      const filtrado = historial.filter(op => op.figura === f);
+      renderHistorial(filtrado);
+      setStatus("Filtro aplicado: " + f + ".");
+    });
+
+    document.getElementById("btnSummary").addEventListener("click", () => {
+      if (historial.length === 0){
+        setStatus("No hay datos para resumen.");
+        return;
+      }
+      generarResumenConMap();
+      alert("Resumen en consola ✅\n\nAbre la consola para verlo.\n\n(Option + Command + I en Mac)");
+      setStatus("Resumen generado (revisar consola).");
+    });
+
+    // ====== MODAL: NOMBRE ======
+    const nameOverlay = document.getElementById("nameOverlay");
+    const appRoot = document.getElementById("appRoot");
+    const nameInput = document.getElementById("nameInput");
+    const nameOk = document.getElementById("nameOk");
+    const nameSkip = document.getElementById("nameSkip");
+
+    function abrirApp(nombre){
+      usuario.nombre = nombre || "";
+      helloLabel.textContent = usuario.nombre ? ("Hola, " + usuario.nombre + " 👋") : "";
+
+      nameOverlay.style.display = "none";
+      nameOverlay.setAttribute("aria-hidden", "true");
+      appRoot.setAttribute("aria-hidden", "false");
+
+      actualizarUIFigura();
+    }
+
+    nameOk.addEventListener("click", () => {
+      const nombre = String(nameInput.value || "").trim();
+      abrirApp(nombre);
+    });
+
+    nameSkip.addEventListener("click", () => {
+      abrirApp("");
+    });
+
+    nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter"){
+        e.preventDefault();
+        nameOk.click();
+      }
+    });
+
+    window.addEventListener("load", () => {
+      nameInput.focus();
+    });
+
+    // ====== MODO CONSOLA CON PROMPT (MANTIENE PROMPT/ALERT/CONSOLE.LOG) ======
+
+    // ✅ Función prompt que valida números (AHORA CON WHILE)
+    function promptNumber(msg, allowEmpty=false){
+      while (true){
+        const raw = prompt(msg);
+
+        if (raw === null) return { cancelled:true, value:null };
+
+        const t = String(raw).trim();
+
+        if (allowEmpty && t === "") return { cancelled:false, value:null };
+
+        const r = parseNumber(t);
+
+        if (r.ok && r.value > 0){
+          return { cancelled:false, value:r.value };
+        }
+
+        alert("Entrada inválida. Debe ser mayor a 0.");
+      }
+    }
+
+    // ✅ Handler del modo consola (AHORA CON WHILE PARA ELEGIR FIGURA)
+    document.getElementById("btnConsoleMode").addEventListener("click", () => {
+      modeLabel.textContent = "Consola";
+
+      let figuraKey = "";
+      while (true){
+        const opcion = prompt(
+          "Modo consola\n\n" +
+          "Elige una figura:\n" +
+          "1) Rectángulo\n" +
+          "2) Cuadrado\n" +
+          "3) Círculo\n\n" +
+          "Cancelar para salir"
+        );
+
+        if (opcion === null) return;
+
+        if (opcion === "1"){ figuraKey = "rect"; break; }
+        if (opcion === "2"){ figuraKey = "square"; break; }
+        if (opcion === "3"){ figuraKey = "circle"; break; }
+
+        alert("Opción inválida. Elige 1, 2 o 3.");
+      }
+
+      const aRes = promptNumber(
+        figuraKey === "rect" ? "Ingrese largo (m):" :
+        figuraKey === "square" ? "Ingrese lado (m):" :
+        "Ingrese radio (m):"
+      );
+      if (aRes.cancelled) return;
+
+      let bVal = null;
+      if (figuraKey === "rect"){
+        const bRes = promptNumber("Ingrese ancho (m):");
+        if (bRes.cancelled) return;
+        bVal = bRes.value;
+      }
+
+      const hRes = promptNumber("Ingrese altura (m) (opcional: dejar vacío):", true);
+      if (hRes.cancelled) return;
+      const hVal = hRes.value;
+
+      const r = calcularFigura(figuraKey, aRes.value, bVal, hVal);
+      if (!r){ alert("Figura inválida."); return; }
+
+      const area2 = round2(r.area);
+      const per2  = round2(r.per);
+      const volStr = (r.vol === null) ? "—" : (round2(r.vol) + " m³");
+
+      setExpr(r.figuraNombre + " (consola)");
+      setMainValue(area2 + " m²");
+      setResultBox(area2 + " m²", per2 + " m", volStr);
+
+      guardarEnHistorial("Consola", r.figuraNombre, aRes.value, bVal, hVal, r.area, r.per, r.vol);
+      renderHistorial(historial);
+
+      console.log("Operación (consola):", r);
+      imprimirHistorialConForEach();
+      generarResumenConMap();
+
+      alert(
+        "✅ Resultado (" + r.figuraNombre + ")\n\n" +
+        "Área: " + area2 + " m²\n" +
+        "Perímetro: " + per2 + " m\n" +
+        "Volumen: " + volStr + "\n\n" +
+        "Revisa la consola para el historial."
+      );
+
+      setStatus("Cálculo realizado en modo consola y registrado.");
+    });
+
+    // Botón grande del panel derecho activa el mismo modo consola
+    document.getElementById("btnConsoleModeRight").addEventListener("click", () => {
+      document.getElementById("btnConsoleMode").click();
+    });
+
+    // Inicializa UI
+    actualizarUIFigura();
+    renderHistorial(historial);
+  </script>
+
+</body>
+</html>
